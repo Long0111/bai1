@@ -16,7 +16,7 @@ class Layout:
         self.img=img
     def Title():
         # hiden title to sidebar
-        img=Image.open(r'G:\code1\python\Data_Visualization\download.jpg')
+        img=Image.open(r'G:/code1/python/Data_Visualization/download.jpg')
         st.sidebar.image(img)
         st.sidebar.header('Upload data about covid-19')
     # @st.cache
@@ -33,4 +33,10 @@ class Layout:
         today=datetime.datetime.now()
         date=st.date_input('Time: ',datetime.datetime.now())
         return date
+    def run_time():
+        time_first=datetime.datetime.now()
+        time_last=time_first+ datetime.timedelta(days=1)
+        start = st.date_input('Start date', time_first)
+        end = st.date_input('End date', time_last)
+        return start,end
 

@@ -1,4 +1,3 @@
-
 import pandas as pd
 import numpy as np
 import plotly.express as px
@@ -8,22 +7,49 @@ import matplotlib.pyplot as plt
 import folium
 
 
-
 class Column:
-    def __init__(self,df,country):
+    def __init__(self,df):
         self.df = df
-        self.country = country
-    def inn(self):
-        # self.df['Date']=pd.to_datetime(self.df['Date'])
-        # self.df['Date']=self.df['Date'].dt.strftime("%y-%m-%d")
-        self.df_country= self.df['Country'].unique().tolist()
+        self.country=None
+    def choose_chart_column(self):
+        """
+        Select the country to display the column chart
 
-        self.df_date = self.df['Date'].unique().tolist()
-        date = st.selectbox('Which date would you like to see ?', self.df_date,100)
-        country = st.multiselect('Which country would you like to see ?',self.df_country,self.country)
+        input: country
 
-        self.df = self.df[self.df['Country'].isin(country)]
-        self.df = self.df[self.df['Date']==date]
+        output: list country
+        """
+        d_country= self.df['Country'].unique().tolist()
+        self.country=st.multiselect('Choose country:',d_country)
+        # sorted(self.country)
+        # return country
+    def Data_preprocessing(self):
+        """
+        Process data into transpose
 
-        fig2=px.bar(self.df,x='Country',y='Confirmed',color='Country')
-        return fig2
+        input: data
+
+        output: data has been transposed
+        """
+        self.df=self.df.drop(columns=['Province/State','Lat','Long'])
+        self.df=self.df.groupby(by='Country').aggregate(np.sum)
+        self.df.index.name='Country'
+        self.df = self.df.reset_index()
+        # country=st.multiselect('Choose country:',d_country)
+        self.df=self.df[self.df['Country'].isin(self.country)]
+    def cl_chart(self,hid):
+        """
+        Show column chart
+        
+        input:
+
+            hid: display column name (Comfirmed,deaths,recovered)
+            
+        output: Column chart
+        """
+        fig = px.bar(self.df, x=sorted(self.country), y=hid,color='Country', title="The graph shows the total number of infections in a country")
+        return fig
+    def column(self,hid):
+        fig=go.Figure()
+        fig.add_trace(go.Histogram(histfunc="sum",y=hid,x=self.df['Country'],name='Confirmed'))
+        return fig
